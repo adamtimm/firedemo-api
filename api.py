@@ -208,7 +208,8 @@ def geocode_function(address):
             tiger_cur = t_conn.cursor()
             cur = conn.cursor()
 
-            who_am_I
+            who_am_I = "\d"
+            print(who_am_I)
 
     #do the geocode on the address
             geocode_sql = "select ST_X(g.geomout) as lon, ST_Y(g.geomout) as lat, g.geomout as wkb from tiger.geocode('{add}') as g".format(add=address)
