@@ -38,17 +38,17 @@ def db_conn(db_name, db_user, db_host, db_password, db_port):
         return conn
 
 def tiger_conn(db_name, db_user, tiger_host, db_password, db_port):
-    conn_string = "dbname='%s' user='%s' host='%s' password='%s' port='%s'" % (
+    t_conn_string = "dbname='%s' user='%s' host='%s' password='%s' port='%s'" % (
         db_name, db_user, tiger_host, db_password, db_port)
     try:
-        conn = psycopg2.connect(conn_string)
+        t_conn = psycopg2.connect(t_conn_string)
     except psycopg2.Error as e:
         if debug:
             print(process_psycopg2_error(e))
             flash(process_psycopg2_error(e))
         return None
     else:
-        return tiger_conn        
+        return t_conn        
 
 #applies a buffer to a parcel gid and returns all parcels that intersect with that buffer
 @app.route("/buffer/gid=<gid>/buffer=<buffer>")
