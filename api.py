@@ -22,7 +22,7 @@ db_password = os.getenv('PG_PASSWORD')
 db_name = os.getenv('PG_DATABASE_1')
 db_port = os.getenv('PG_PORT')
 db_host = os.getenv('PG_HOST')
-table_name = oc.getenv('TABLE_NAME')
+table_name = os.getenv('TABLE_NAME')
 
 def db_conn(db_name, db_user, db_host, db_password, db_port):
     conn_string = "dbname='%s' user='%s' host='%s' password='%s' port='%s'" % (
@@ -132,7 +132,7 @@ def hazard_mods(gid, attribute):
 @app.route("/facility/gid=<gid>/buffer=<buffer>", methods=['GET'])
 def facility_query(gid, buffer):
     conn = db_conn(db_name, db_user, db_host, db_password, db_port)
-    print(tabel_name, gid, buffer)
+    print(table_name, gid, buffer)
     if conn:
         try:
             cursor = conn.cursor()
