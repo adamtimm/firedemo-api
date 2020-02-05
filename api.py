@@ -232,7 +232,7 @@ def geocode_function(address):
             conn.close
             tiger_cur.close()
             cur.close()
-            return result
+            return result['parcelid']
     else:
         return None                    
 
