@@ -66,7 +66,7 @@ def execute_geojson_query(attribute):
     if conn:
         try:
             cursor = conn.cursor()
-            cursor.execute("select array_to_json(array_agg(row_to_json(t))) FROM ( SELECT gid, siteadd, sitcity, ST_AsGeoJSON(geom) FROM groot.assessor_parcels WHERE firehazard = %s) t;", (table_name, attribute,))
+            cursor.execute("select array_to_json(array_agg(row_to_json(t))) FROM ( SELECT gid, siteadd, sitcity, ST_AsGeoJSON(geom) FROM groot.assessor_parcels WHERE firehazard = %s) t;", (attribute,))
             hazard_result = cursor.fetchall()
             print('success')
         except psycopg2.Error as e:
@@ -101,7 +101,7 @@ def execute_query(attribute):
     else:
         return None            
 #uses the assesor_parcels dataset from the Santa Cruz GIS site, filters on the firehazard column 
-def execute_update(table_name, attribute, gid):
+def execute_update(attribute, gid):
     conn = db_conn(db_name, db_user, db_host, db_password, db_port)
     print(attribute, gid)
     if conn:
@@ -132,7 +132,7 @@ def hazard_mods(gid, attribute):
 @app.route("/facility/gid=<gid>/buffer=<buffer>", methods=['GET'])
 def facility_query(gid, buffer):
     conn = db_conn(db_name, db_user, db_host, db_password, db_port)
-    print(table_name, gid, buffer)
+    print(gid, buffer)
     if conn:
         try:
             cursor = conn.cursor()
