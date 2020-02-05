@@ -24,6 +24,8 @@ db_port = os.getenv('PG_PORT')
 db_host = os.getenv('PG_HOST')
 tiger_host = os.getenv('TIGER_HOST')
 tiger_db = os.getenv('TIGER_DB')
+tiger_user = os.getenv('TIGER_USER')
+
 
 def db_conn(db_name, db_user, db_host, db_password, db_port):
     conn_string = "dbname='%s' user='%s' host='%s' password='%s' port='%s'" % (
@@ -38,9 +40,9 @@ def db_conn(db_name, db_user, db_host, db_password, db_port):
     else:
         return conn
 
-def tiger_conn(tiger_db, db_user, tiger_host, db_password, db_port):
+def tiger_conn(tiger_db, tiger_user, tiger_host, db_password, db_port):
     t_conn_string = "dbname='%s' user='%s' host='%s' password='%s' port='%s'" % (
-        tiger_db, db_user, tiger_host, db_password, db_port)
+        tiger_db, tiger_user, tiger_host, db_password, db_port)
     try:
         t_conn = psycopg2.connect(t_conn_string)
     except psycopg2.Error as e:
@@ -197,7 +199,7 @@ def process_psycopg2_error(error):
 @app.route('/geocode/<string:address>', methods=['GET'])
 def geocode_function(address):
     conn = db_conn(db_name, db_user, db_host, db_password, db_port)
-    t_conn = tiger_conn(db_name, db_user, tiger_host, db_password, db_port)
+    t_conn = tiger_conn(db_name, tiger_user, tiger_host, db_password, db_port)
     print(address)
     if conn:
         try:
@@ -205,6 +207,8 @@ def geocode_function(address):
             result = {}
             tiger_cur = t_conn.cursor()
             cur = conn.cursor()
+
+            who_am_I
 
     #do the geocode on the address
             geocode_sql = "select ST_X(g.geomout) as lon, ST_Y(g.geomout) as lat, g.geomout as wkb from tiger.geocode('{add}') as g".format(add=address)
