@@ -22,7 +22,7 @@ db_password = os.getenv('PG_PASSWORD')
 db_name = os.getenv('PG_DATABASE_1')
 db_port = os.getenv('PG_PORT')
 db_host = os.getenv('PG_HOST')
-
+tiger_host = os.getenv('TIGER_HOST')
 
 def db_conn(db_name, db_user, db_host, db_password, db_port):
     conn_string = "dbname='%s' user='%s' host='%s' password='%s' port='%s'" % (
@@ -179,6 +179,39 @@ def process_psycopg2_error(error):
             return error
     else:
         raise TypeError('error must be psycopg2.Error')
+
+@app.route('/geocode/<string:address>', methods=['GET'])
+def geocode_function(address):
+conn = db_conn(db_name, db_user, db_host, db_password, db_port)
+tiger_conn = tiger_conn(db_name, db_user, tiger_host, db_password, db_port)
+    print(attribute)
+    if conn:
+        try:
+            cursor = conn.cursor()
+    result = {}
+    tiger_cur = tiger_conn.cursor()
+    cur = conn.cursor()
+
+    #do the geocode on the address
+    geocode_sql = "select ST_X(g.geomout) as lon, ST_Y(g.geomout) as lat, g.geomout as wkb from tiger.geocode('{add}') as g".format(add=address)
+    tiger_cur.execute(geocode_sql)
+    rows = tiger_cur.fetchall()
+    print(rows)
+    result['lon'] = rows[0][0]
+    result['lat'] = rows[0][1]
+
+    #then take the wkb and use it to get the parcel id
+    parcel_sql = "select gid from groot.assessor_parcels where st_intersects( geom, st_transform('{geom}'::geometry, 2227))".format(geom=rows[0][2])
+    cur.execute(parcel_sql)
+    parcel_rows = cur.fetchall()
+    result['parcelid'] = parcel_rows[0][0]
+
+    cur.close()
+    tiger_cur.close()
+    conn.close()
+    tiger_conn.close()
+
+    return result
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
