@@ -17,11 +17,11 @@ app = Flask(__name__)
 app.debug = False
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
-db_user = os.getenv('PG_USER', None)
-db_password = os.getenv('PG_PASSWORD', None)
-db_name = os.getenv('PG_DATABASE_1', None)
-db_port = os.getenv('PG_PORT', None)
-db_host = os.getenv('PG_HOST', None)
+db_user = os.getenv('PG_USER')
+db_password = os.getenv('PG_PASSWORD')
+db_name = os.getenv('PG_DATABASE_1')
+db_port = os.getenv('PG_PORT')
+db_host = os.getenv('PG_HOST')
 
 def db_conn(db_name, db_user, db_host, db_password, db_port):
     conn_string = "dbname='%s' user='%s' host='%s' password='%s' port='%s'" % (
