@@ -22,7 +22,7 @@ db_password = os.getenv('PG_PASSWORD')
 db_name = os.getenv('PG_DATABASE_1')
 db_port = os.getenv('PG_PORT')
 db_host = os.getenv('PG_HOST')
-table_name = os.getenv('TABLE_NAME')
+
 
 def db_conn(db_name, db_user, db_host, db_password, db_port):
     conn_string = "dbname='%s' user='%s' host='%s' password='%s' port='%s'" % (
@@ -39,13 +39,13 @@ def db_conn(db_name, db_user, db_host, db_password, db_port):
 
 #applies a buffer to a parcel gid and returns all parcels that intersect with that buffer
 @app.route("/buffer/gid=<gid>/buffer=<buffer>")
-def parcel_distance(gid, buffer, table_name):
+def parcel_distance(gid, buffer):
     conn = db_conn(db_name, db_user, db_host, db_password, db_port)
     print(gid, buffer)
     if conn:
         try:
             cursor = conn.cursor()
-            cursor.execute("select array_to_json(array_agg(row_to_json(t))) FROM (SELECT a.gid, a.apn FROM % a, % b WHERE ST_DWithin(a.geom, b.geom, %s) AND b.gid = %s) t;", (table_name, buffer, gid))
+            cursor.execute("select array_to_json(array_agg(row_to_json(t))) FROM (SELECT a.gid, a.apn FROM groot.assessor_parcels a, groot.assessor_parcels b WHERE ST_DWithin(a.geom, b.geom, %s) AND b.gid = %s) t;", (buffer, gid))
             result = cursor.fetchall()
             print(result)
         except psycopg2.Error as e:
@@ -60,13 +60,13 @@ def parcel_distance(gid, buffer, table_name):
         return None
 
 #returns all parcels from assessor_parcels based on firehazard attribute input as geojson
-def execute_geojson_query(table_name, attribute):
+def execute_geojson_query(attribute):
     conn = db_conn(db_name, db_user, db_host, db_password, db_port)
     print(attribute)
     if conn:
         try:
             cursor = conn.cursor()
-            cursor.execute("select array_to_json(array_agg(row_to_json(t))) FROM ( SELECT gid, siteadd, sitcity, ST_AsGeoJSON(geom) FROM %s WHERE firehazard = %s) t;", (table_name, attribute,))
+            cursor.execute("select array_to_json(array_agg(row_to_json(t))) FROM ( SELECT gid, siteadd, sitcity, ST_AsGeoJSON(geom) FROM groot.assessor_parcels WHERE firehazard = %s) t;", (table_name, attribute,))
             hazard_result = cursor.fetchall()
             print('success')
         except psycopg2.Error as e:
@@ -87,7 +87,7 @@ def execute_query(attribute):
     if conn:
         try:
             cursor = conn.cursor()
-            cursor.execute("select array_to_json(array_agg(row_to_json(t))) FROM ( SELECT gid, siteadd, sitcity FROM groot.assesor_parcels WHERE firehazard = %s) t;", (attribute,))
+            cursor.execute("select array_to_json(array_agg(row_to_json(t))) FROM ( SELECT gid, siteadd, sitcity FROM groot.assessor_parcels WHERE firehazard = %s) t;", (attribute,))
             hazard_result = cursor.fetchall()
             print(hazard_result)
         except psycopg2.Error as e:
@@ -107,7 +107,7 @@ def execute_update(table_name, attribute, gid):
     if conn:
         try:
             cursor = conn.cursor()
-            cursor.execute("UPDATE %s set firehazard = %s where gid = %s;", (table_name, attribute, gid))
+            cursor.execute("UPDATE groot.assessor_parcels set firehazard = %s where gid = %s;", (attribute, gid))
             conn.commit()
         except psycopg2.Error as e:
             if debug:
@@ -136,7 +136,7 @@ def facility_query(gid, buffer):
     if conn:
         try:
             cursor = conn.cursor()
-            cursor.execute("select array_to_json(array_agg(row_to_json(t))) FROM (SELECT DISTINCT ON (a.gid) a.gid, f.address, f.phone, f.notes, f.geom, f.gid FROM facilities f LEFT JOIN %s a ON ST_DWithin(f.geom, a.geom, %s) AND a.gid= %s ORDER BY a.gid, ST_Distance(f.geom, a.geom)) t;", (table_name, buffer, gid))
+            cursor.execute("select array_to_json(array_agg(row_to_json(t))) FROM (SELECT DISTINCT ON (a.gid) a.gid, f.address, f.phone, f.notes, f.geom, f.gid FROM facilities f LEFT JOIN groot.assessor_parcels a ON ST_DWithin(f.geom, a.geom, %s) AND a.gid= %s ORDER BY a.gid, ST_Distance(f.geom, a.geom)) t;", (buffer, gid))
             facility_result = cursor.fetchall()
             print(facility_result)
         except psycopg2.Error as e:
