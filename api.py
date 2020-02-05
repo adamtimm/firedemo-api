@@ -81,7 +81,7 @@ def execute_geojson_query(table_name, attribute):
         return None
 
 #uses the assessor_parcels dataset from the Santa Cruz GIS site, returns as JSON       
-def execute_query(attribute):
+def execute_query(table_name, attribute):
     conn = db_conn(db_name, db_user, db_host, db_password, db_port)
     print(attribute)
     if conn:
@@ -101,7 +101,7 @@ def execute_query(attribute):
     else:
         return None            
 #uses the assesor_parcels dataset from the Santa Cruz GIS site, filters on the firehazard column 
-def execute_update(tabel_name, attribute, gid):
+def execute_update(table_name, attribute, gid):
     conn = db_conn(db_name, db_user, db_host, db_password, db_port)
     print(attribute, gid)
     if conn:
