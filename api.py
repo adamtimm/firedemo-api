@@ -23,6 +23,7 @@ db_name = os.getenv('PG_DATABASE_1')
 db_port = os.getenv('PG_PORT')
 db_host = os.getenv('PG_HOST')
 tiger_host = os.getenv('TIGER_HOST')
+tiger_db = os.getenv('TIGER_DB')
 
 def db_conn(db_name, db_user, db_host, db_password, db_port):
     conn_string = "dbname='%s' user='%s' host='%s' password='%s' port='%s'" % (
@@ -37,9 +38,9 @@ def db_conn(db_name, db_user, db_host, db_password, db_port):
     else:
         return conn
 
-def tiger_conn(db_name, db_user, tiger_host, db_password, db_port):
+def tiger_conn(tiger_db, db_user, tiger_host, db_password, db_port):
     t_conn_string = "dbname='%s' user='%s' host='%s' password='%s' port='%s'" % (
-        db_name, db_user, tiger_host, db_password, db_port)
+        tiger_db, db_user, tiger_host, db_password, db_port)
     try:
         t_conn = psycopg2.connect(t_conn_string)
     except psycopg2.Error as e:
