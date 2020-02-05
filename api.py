@@ -81,13 +81,13 @@ def execute_geojson_query(table_name, attribute):
         return None
 
 #uses the assessor_parcels dataset from the Santa Cruz GIS site, returns as JSON       
-def execute_query(table_name, attribute):
+def execute_query(attribute):
     conn = db_conn(db_name, db_user, db_host, db_password, db_port)
     print(attribute)
     if conn:
         try:
             cursor = conn.cursor()
-            cursor.execute("select array_to_json(array_agg(row_to_json(t))) FROM ( SELECT gid, siteadd, sitcity FROM %s WHERE firehazard = %s) t;", (table_name, attribute,))
+            cursor.execute("select array_to_json(array_agg(row_to_json(t))) FROM ( SELECT gid, siteadd, sitcity FROM groot.assesor_parcels WHERE firehazard = %s) t;", (attribute,))
             hazard_result = cursor.fetchall()
             print(hazard_result)
         except psycopg2.Error as e:
